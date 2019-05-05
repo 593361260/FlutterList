@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'dart:io';
-import 'dart:convert';
+import 'package:flutter_list/RecommendPage.dart';
+import 'package:flutter_list/HotPage.dart';
+import 'package:flutter_list/NewPage.dart';
 
 void main() => runApp(MyApp());
 
@@ -14,7 +16,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'music player'),
     );
   }
 }
@@ -30,10 +32,12 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   List data;
+  int _currentIndex = 0;
+  var titles = ["xixi", "haha", "lala"];
 
   @override
   Widget build(BuildContext context) {
-    getHttp();
+//    getHttp();
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -41,16 +45,68 @@ class _MyHomePageState extends State<MyHomePage> {
           IconButton(
             icon: Icon(Icons.arrow_forward),
             onPressed: () {
-              getHttp();
+              getHttp(0);
             },
           )
         ],
       ),
-      body: new ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        children: data == null ? null : _getItem(),
+      /*body: Container(
+            child: RefreshIndicator(
+                child: new ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: data == null ? _loading() : _getItem(),
+                ),
+                onRefresh: _refresh)
+        )*/
+      body: IndexedStack(//这样可以保存widget的状态,但是所有界面都会被初始加载app时, 都被初始化
+        index: _currentIndex,
+        children: <Widget>[
+          RecommendWidget(),
+          HotPage(),
+          NewPageWidget()
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+              title: Text("专题"),
+              icon: Icon(Icons.cloud),
+              activeIcon: Icon(Icons.cloud_circle)),
+          BottomNavigationBarItem(
+              title: Text("最热"),
+              icon: Icon(Icons.cloud_queue),
+              activeIcon: Icon(Icons.cloud_off)),
+          BottomNavigationBarItem(
+              title: Text("最新"),
+              icon: Icon(Icons.brightness_1),
+              activeIcon: Icon(
+                Icons.brightness_4,
+                color: Colors.amberAccent,
+              )),
+        ],
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        currentIndex: _currentIndex,
       ),
     );
+  }
+
+  Future _refresh() async {
+    data.clear();
+    getHttp(0);
+    return;
+  }
+
+  List<Widget> _loading() {
+    getHttp(0);
+    return <Widget>[
+      new Center(
+        child: Text('正在加載'),
+      )
+    ];
   }
 
   List<Widget> _getItem() {
@@ -71,10 +127,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
 //http://api.ring.51app.cn/r/special/0.do
-  getHttp() async {
+  getHttp(int flag) async {
     var httpClient = new HttpClient();
     var request = await httpClient
-        .getUrl(Uri.parse('http://api.ring.51app.cn/r/special/0.do'));
+        .getUrl(Uri.parse('http://api.ring.51app.cn/r/special/$flag.do'));
     var response = await request.close();
 
     var responseBody = await response.transform(Utf8Decoder()).join();
