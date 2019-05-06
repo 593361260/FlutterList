@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_list/SubjectDetailsPage.dart';
 
 class RecommendWidget extends StatefulWidget {
   @override
@@ -10,8 +11,11 @@ class RecommendWidget extends StatefulWidget {
   }
 }
 
-class _RecommendBuilder extends State<RecommendWidget> with AutomaticKeepAliveClientMixin {
+class _RecommendBuilder extends State<RecommendWidget>
+    with AutomaticKeepAliveClientMixin {
   List data;
+  var _scroller = new ScrollController();
+  int current = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -21,13 +25,14 @@ class _RecommendBuilder extends State<RecommendWidget> with AutomaticKeepAliveCl
           child: new ListView(
             physics: const AlwaysScrollableScrollPhysics(),
             children: data == null ? _loading() : _getItem(),
+            controller: _scroller,
           ),
           onRefresh: _refresh),
     ));
   }
 
   List<Widget> _loading() {
-    getHttp(0);
+    getHttp(current);
     return <Widget>[
       new Center(
         child: Text('正在加載'),
@@ -40,21 +45,60 @@ class _RecommendBuilder extends State<RecommendWidget> with AutomaticKeepAliveCl
       return Card(
         elevation: 2,
         child: _getRowItem(f),
-        margin: EdgeInsets.fromLTRB(2.5,0,2.5,2.5),
+        margin: EdgeInsets.fromLTRB(2.5, 2.5, 2.5, 0),
       );
     }).toList();
   }
 
   Widget _getRowItem(f) {
-    return new Row(children: <Widget>[
-      Image(width: 100, height: 100, image: NetworkImage(f['smallimageUrl'])),
-      Text(f['name']),
-    ]);
+    return new GestureDetector(
+      child: new Row(
+        children: <Widget>[
+          Container(
+            width: 100,
+            height: 100,
+            decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: NetworkImage(f['smallimageUrl']), fit: BoxFit.cover),
+                borderRadius: BorderRadius.all(Radius.circular(5))),
+            margin: EdgeInsets.fromLTRB(5, 5, 5, 5),
+          ),
+          new Flexible(
+            flex: 1,
+            fit: FlexFit.tight,
+            child: Column(children: <Widget>[
+              Container(
+                child: Text(
+                  f['name'],
+                  style: TextStyle(color: Colors.black, fontSize: 13),
+                ),
+                padding: EdgeInsets.fromLTRB(10, 10, 0, 0),
+              ),
+              Container(
+                child: Text(
+                  f['about'],
+                  style: TextStyle(color: Color(0xff777777), fontSize: 12),
+                ),
+                padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
+              ),
+            ], crossAxisAlignment: CrossAxisAlignment.start),
+          )
+        ],
+        crossAxisAlignment: CrossAxisAlignment.start,
+      ),
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return new SubjectDetailsPage(
+              imgUrl: f["smallimageUrl"], id: f['id'].toString());
+        }));
+      },
+    );
   }
 
   Future _refresh() async {
     data.clear();
-    getHttp(0);
+    current = 0;
+    getHttp(current);
     return;
   }
 
@@ -67,9 +111,32 @@ class _RecommendBuilder extends State<RecommendWidget> with AutomaticKeepAliveCl
     var responseBody = await response.transform(Utf8Decoder()).join();
     var list = json.decode(responseBody)["body"];
     setState(() {
-      data = list;
+      if (null == data) {
+        data = list;
+      } else {
+        data.addAll(list);
+      }
     });
     print('$responseBody');
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _scroller.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _scroller.addListener(() {
+      if (_scroller.position.pixels == _scroller.position.maxScrollExtent) {
+        current++;
+        getHttp(current);
+        print('加载更多');
+      }
+    });
+    print('init RecommendWidget');
   }
 
   @override

@@ -21,5 +21,11 @@ class _HotPageBuilder extends State<HotPage> with AutomaticKeepAliveClientMixin{
   }
 
   @override
+  void initState() {
+    super.initState();
+    print('init HotPage');
+  }
+
+  @override
   bool get wantKeepAlive => true;
 }

@@ -22,5 +22,11 @@ class _NewPageBuilder extends State<NewPageWidget>
   }
 
   @override
+  void initState() {
+    super.initState();
+    print('init NewPageWidget');
+  }
+
+  @override
   bool get wantKeepAlive => true;
 }
