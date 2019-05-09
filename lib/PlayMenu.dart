@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
 /*
@@ -14,31 +15,44 @@ class play_menu_widget extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return _PlayMenuBuilder();
+    return _PlayMenuBuilder(imgUrl, playUrl);
   }
 }
 
 class _PlayMenuBuilder extends State<play_menu_widget> {
+  String imgUrl;
+  String playUrl;
+  AudioPlayer player = AudioPlayer();
+
+  _PlayMenuBuilder(this.imgUrl, this.playUrl);
+
   @override
   Widget build(BuildContext context) {
+    player.play(playUrl);
     return new Scaffold(
       body: Center(
           child: RotationTransition(
         child: ClipOval(
           child: Image(
-            image: NetworkImage(
-                "http://img.ring.51app.cn/20190329/42635586d11843619149799c6f5b8b1a.png"),
+            image: NetworkImage(imgUrl),
             fit: BoxFit.cover,
             width: 200,
             height: 200,
           ),
         ),
         turns: new CurvedAnimation(
-            parent: new AnimationController(
-                duration: const Duration(milliseconds: 2000),
-                vsync: new AnimatedListState()),
-            curve: Curves.easeIn),
+          parent: new AnimationController(
+              duration: const Duration(milliseconds: 2000),
+              vsync: new AnimatedListState()),
+          curve: Curves.easeIn,
+        ),
       )),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    player.stop();
   }
 }

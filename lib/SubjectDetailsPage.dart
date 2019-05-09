@@ -98,7 +98,7 @@ class _SubjectDetailsBuilder extends State<SubjectDetailsPage> {
       ),
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute<void>(builder: (context) {
-          return new play_menu_widget(imgUrl: f['imageUrl']);
+          return new play_menu_widget(imgUrl: f['imageUrl'],playUrl:f['auditionUrl'] ,);
         }));
       },
     );
