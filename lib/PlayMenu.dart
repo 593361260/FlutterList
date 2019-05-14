@@ -1,5 +1,8 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'dart:ui';
+
+import 'package:vector_math/vector_math_64.dart';
 
 /*
 * 播放的界面
@@ -29,72 +32,93 @@ class _PlayMenuBuilder extends State<play_menu_widget> {
   @override
   Widget build(BuildContext context) {
     player.play(playUrl);
+    _controller.forward();
     return new Scaffold(
       body: Column(
         children: <Widget>[
-          Container(
-            child: Center(
-              child: RotationTransition(
-                child: ClipOval(
-                  child: Image(
-                    image: NetworkImage(imgUrl),
-                    fit: BoxFit.cover,
-                    width: 200,
-                    height: 200,
+          Stack(
+            children: <Widget>[
+              Container(
+                child: Center(
+                  child: RotationTransition(
+                    child: ClipOval(
+                      child: Image(
+                        image: NetworkImage(imgUrl),
+                        fit: BoxFit.cover,
+                        width: 200,
+                        height: 200,
+                      ),
+                    ),
+                    turns: new Tween<double>(begin: 0.0, end: 1.0)
+                        .animate(_controller),
                   ),
                 ),
-                turns: new CurvedAnimation(
-                  parent: new AnimationController(
-                      duration: const Duration(milliseconds: 2000),
-                      vsync: new AnimatedListState()),
-                  curve: Curves.easeIn,
-                ),
+                margin: EdgeInsets.fromLTRB(0, 100, 0, 0),
               ),
-            ),
-            margin: EdgeInsets.fromLTRB(0, 100, 0, 0),
+              Container(
+                child: Image(
+                  image: AssetImage('icon/play_needle.png'),
+                  width: 92,
+                  height: 138,
+                ),
+                margin: EdgeInsets.fromLTRB(46, 0, 0, 0),
+                alignment: Alignment.center,
+              )
+            ],
           ),
-          Padding(
-            child: Row(
-              children: <Widget>[
-                GestureDetector(child:
-                Icon(
+          Row(
+            children: <Widget>[
+              GestureDetector(
+                child: Icon(
                   Icons.pause,
                 ),
-                onTap: (){
-                  if(player.state==AudioPlayerState.PLAYING){//正在播放
+                onTap: () {
+                  if (player.state == AudioPlayerState.PLAYING) {
+                    //正在播放
                     player.pause();
-                  }else{
-                    if(player.state==AudioPlayerState.PAUSED) {
+                  } else {
+                    if (player.state == AudioPlayerState.PAUSED) {
                       player.resume();
-                    }else if (player.state==AudioPlayerState.COMPLETED){
+                    } else if (player.state == AudioPlayerState.COMPLETED) {
                       player.play(playUrl);
-                    }else{
-
-                    }
+                    } else {}
                   }
                 },
-                )
-                ,
-                Flexible(
-                  child: Container(
-                    child: Slider(
-                        min: 0, max: 2000, value: 100, onChanged: (value) {
+              ),
+              Icon(Icons.play_arrow),
+            ],
+          ),
+          Flexible(
+            child: Container(
+              child: Slider(
+                  min: 0,
+                  max: 2000,
+                  value: 100,
+                  onChanged: (value) {
 //                          player.
-                      print('change value $value');
-                    }),
-                  ),
-                  flex: 1,
-                  fit: FlexFit.tight,
-                ),
-                Icon(Icons.play_arrow),
-              ],
-              mainAxisAlignment: MainAxisAlignment.center,
+                    print('change value $value');
+                  }),
+              margin: EdgeInsets.fromLTRB(50, 0, 50, 0),
             ),
-            padding: EdgeInsets.fromLTRB(20, 100, 20, 0),
+            flex: 1,
+            fit: FlexFit.tight,
           ),
         ],
       ),
     );
+  }
+
+  Animation<double> animation_record;
+  AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = new AnimationController(
+        duration: const Duration(milliseconds: 20000),
+        vsync: new AnimatedListState());
+    animation_record =
+        new CurvedAnimation(parent: _controller, curve: Curves.linear);
   }
 
   @override
