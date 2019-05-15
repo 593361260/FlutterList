@@ -118,8 +118,30 @@ class _PlayMenuBuilder extends State<play_menu_widget> {
         duration: const Duration(milliseconds: 20000),
         vsync: new AnimatedListState());
     animation_record =
-        new CurvedAnimation(parent: _controller, curve: Curves.linear);
+    new CurvedAnimation(parent: _controller, curve: Curves.linear);
+
+    animation_record.addStatusListener((state) {
+      if (state == AnimationStatus.completed) {
+        _controller.forward();
+      }
+    });
+
+    player.onPlayerStateChanged.listen((data){
+
+
+
+      print('bofang  完成');
+
+
+
+
+
+
+    });
+
+
   }
+
 
   @override
   void dispose() {
