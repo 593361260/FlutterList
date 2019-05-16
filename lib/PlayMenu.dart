@@ -2,8 +2,6 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
 
-import 'package:vector_math/vector_math_64.dart';
-
 /*
 * 播放的界面
 * */
@@ -32,7 +30,6 @@ class _PlayMenuBuilder extends State<play_menu_widget> {
   @override
   Widget build(BuildContext context) {
     player.play(playUrl);
-    _controller.forward();
     return new Scaffold(
       body: Column(
         children: <Widget>[
@@ -118,30 +115,31 @@ class _PlayMenuBuilder extends State<play_menu_widget> {
         duration: const Duration(milliseconds: 20000),
         vsync: new AnimatedListState());
     animation_record =
-    new CurvedAnimation(parent: _controller, curve: Curves.linear);
+        new CurvedAnimation(parent: _controller, curve: Curves.linear);
 
     animation_record.addStatusListener((state) {
+      print('动画播放的状态  $state');
+
       if (state == AnimationStatus.completed) {
-        _controller.forward();
+        if (player.state == AudioPlayerState.PLAYING) {
+          _controller.forward();
+        }
       }
     });
-
-    player.onPlayerStateChanged.listen((data){
-
-
-
-      print('bofang  完成');
-
-
-
-
-
-
+    //播放状态的监听
+    player.onPlayerStateChanged.listen((data) {
+      if (data == AudioPlayerState.PLAYING) {
+        _controller.forward();
+      } else if (data == AudioPlayerState.COMPLETED) {
+        _controller.stop();
+      } else if (data == AudioPlayerState.PAUSED) {
+        _controller.stop();
+      } else if (data == AudioPlayerState.STOPPED) {
+        _controller.stop();
+      }
+      print('bofang  完成$data');
     });
-
-
   }
-
 
   @override
   void dispose() {
