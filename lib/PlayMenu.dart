@@ -90,10 +90,11 @@ class _PlayMenuBuilder extends State<play_menu_widget> {
               child: Slider(
                   min: 0,
                   max: 2000,
-                  value: 100,
+                  value: position.toDouble(),
                   onChanged: (value) {
 //                          player.
                     print('change value $value');
+//                    player.seek(Duration());
                   }),
               margin: EdgeInsets.fromLTRB(50, 0, 50, 0),
             ),
@@ -107,6 +108,8 @@ class _PlayMenuBuilder extends State<play_menu_widget> {
 
   Animation<double> animation_record;
   AnimationController _controller;
+  int position = 0;
+  int allDuration = 0;
 
   @override
   void initState() {
@@ -119,7 +122,6 @@ class _PlayMenuBuilder extends State<play_menu_widget> {
 
     animation_record.addStatusListener((state) {
       print('动画播放的状态  $state');
-
       if (state == AnimationStatus.completed) {
         if (player.state == AudioPlayerState.PLAYING) {
           _controller.forward();
@@ -138,6 +140,25 @@ class _PlayMenuBuilder extends State<play_menu_widget> {
         _controller.stop();
       }
       print('bofang  完成$data');
+    });
+    player.onDurationChanged.listen((duration) {
+      allDuration = duration.inSeconds;
+//      print(' 播放进度 ${duration.inSeconds}  ${duration.inMilliseconds}  ${duration.inMicroseconds}');
+    });
+
+    player.onAudioPositionChanged.listen((onData) {
+      /**
+       * 更换当前进度条
+       */
+      setState(() {
+        if (allDuration != 0) {
+          position =
+              (onData.inSeconds.toDouble() / allDuration.toDouble() * 1000)
+                  .toInt();
+//        position = onData.inSeconds;
+        }
+      });
+      print('${onData.inSeconds}  ');
     });
   }
 
