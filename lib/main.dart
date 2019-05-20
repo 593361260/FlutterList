@@ -3,6 +3,8 @@ import 'package:flutter_list/RecommendPage.dart';
 import 'package:flutter_list/HotPage.dart';
 import 'package:flutter_list/NewPage.dart';
 
+import 'PlayMenu.dart';
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -39,8 +41,13 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.arrow_forward),
-            onPressed: () {},
+            icon: Icon(Icons.clear_all),
+            onPressed: () {
+              Navigator.push(
+                  context, MaterialPageRoute<void>(builder: (context) {
+                    return play_menu_widget();
+              }));
+            },
           )
         ],
       ),

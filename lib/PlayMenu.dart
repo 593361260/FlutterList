@@ -2,6 +2,8 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
 
+import 'TimeTools.dart';
+
 /*
 * 播放的界面
 * */
@@ -30,79 +32,105 @@ class _PlayMenuBuilder extends State<play_menu_widget> {
   @override
   Widget build(BuildContext context) {
     player.play(playUrl);
-    return new Scaffold(
-      body: Column(
-        children: <Widget>[
-          Stack(
-            children: <Widget>[
-              Container(
-                child: Center(
-                  child: RotationTransition(
-                    child: ClipOval(
-                      child: Image(
-                        image: NetworkImage(imgUrl),
-                        fit: BoxFit.cover,
-                        width: 200,
-                        height: 200,
+    return new Stack(
+      children: <Widget>[
+        Column(
+          children: <Widget>[
+            Stack(
+              children: <Widget>[
+                Container(
+                  child: Center(
+                    child: RotationTransition(
+                      child: ClipOval(
+                        child: Image(
+                          image: NetworkImage(imgUrl),
+                          fit: BoxFit.cover,
+                          width: 200,
+                          height: 200,
+                        ),
                       ),
+                      turns: new Tween<double>(begin: 0.0, end: 1.0)
+                          .animate(_controller),
                     ),
-                    turns: new Tween<double>(begin: 0.0, end: 1.0)
-                        .animate(_controller),
                   ),
+                  margin: EdgeInsets.fromLTRB(0, 100, 0, 0),
                 ),
-                margin: EdgeInsets.fromLTRB(0, 100, 0, 0),
-              ),
-              Container(
-                child: Image(
-                  image: AssetImage('icon/play_needle.png'),
-                  width: 92,
-                  height: 138,
-                ),
-                margin: EdgeInsets.fromLTRB(46, 0, 0, 0),
-                alignment: Alignment.center,
-              )
-            ],
-          ),
-          Row(
-            children: <Widget>[
-              GestureDetector(
-                child: Icon(
-                  Icons.pause,
-                ),
-                onTap: () {
-                  if (player.state == AudioPlayerState.PLAYING) {
-                    //正在播放
-                    player.pause();
-                  } else {
-                    if (player.state == AudioPlayerState.PAUSED) {
-                      player.resume();
-                    } else if (player.state == AudioPlayerState.COMPLETED) {
-                      player.play(playUrl);
-                    } else {}
-                  }
-                },
-              ),
-              Icon(Icons.play_arrow),
-            ],
-          ),
-          Flexible(
-            child: Container(
-              child: Slider(
-                  min: 0,
-                  max: 2000,
-                  value: position.toDouble(),
-                  onChanged: (value) {
-//                          player.
-                    print('change value $value');
-//                    player.seek(Duration());
-                  }),
-              margin: EdgeInsets.fromLTRB(50, 0, 50, 0),
+                Container(
+                  child: Image(
+                    image: AssetImage('icon/play_needle.png'),
+                    width: 92,
+                    height: 138,
+                  ),
+                  margin: EdgeInsets.fromLTRB(46, 0, 0, 0),
+                  alignment: Alignment.center,
+                )
+              ],
             ),
-            flex: 1,
-            fit: FlexFit.tight,
+            Row(
+              children: <Widget>[
+                GestureDetector(
+                  child: Icon(
+                    Icons.pause,
+                  ),
+                  onTap: () {
+                    if (player.state == AudioPlayerState.PLAYING) {
+                      //正在播放
+                      player.pause();
+                    } else {
+                      if (player.state == AudioPlayerState.PAUSED) {
+                        player.resume();
+                      } else if (player.state == AudioPlayerState.COMPLETED) {
+                        player.play(playUrl);
+                      } else {}
+                    }
+                  },
+                ),
+                Icon(Icons.play_arrow),
+              ],
+            ),
+            Container(
+              child: Row(
+                children: <Widget>[
+                  Text(
+                    TimeParse.parse(currentPosition),
+                    style: TextStyle(
+                      color: Color(0xff999999),
+                      fontSize: 15,
+                    ),
+                  ),
+                  Flexible(
+                    child: Container(
+                      child: Slider(
+                          min: 0,
+                          max: 2000,
+                          value: position.toDouble(),
+                          onChanged: (value) {
+                            print('change value $value');
+                          }),
+                      margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                    ),
+                    flex: 1,
+                    fit: FlexFit.tight,
+                  ),
+                  Text(
+                    TimeParse.parse(allDuration),
+                    style: TextStyle(color: Color(0xff999999), fontSize: 15),
+                  ),
+                ],
+              ),
+              margin: EdgeInsets.fromLTRB(15, 100, 15, 0),
+              alignment: Alignment.bottomCenter,
+            ),
+          ],
+        ),
+        BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Opacity(
+            child: Image(image: NetworkImage(imgUrl)),
+            opacity: 0.6,
           ),
-        ],
-      ),
+        )
+      ],
     );
   }
 
@@ -110,6 +138,7 @@ class _PlayMenuBuilder extends State<play_menu_widget> {
   AnimationController _controller;
   int position = 0;
   int allDuration = 0;
+  int currentPosition = 0;
 
   @override
   void initState() {
@@ -142,7 +171,9 @@ class _PlayMenuBuilder extends State<play_menu_widget> {
       print('bofang  完成$data');
     });
     player.onDurationChanged.listen((duration) {
-      allDuration = duration.inSeconds;
+      setState(() {
+        allDuration = duration.inSeconds;
+      });
 //      print(' 播放进度 ${duration.inSeconds}  ${duration.inMilliseconds}  ${duration.inMicroseconds}');
     });
 
@@ -151,11 +182,11 @@ class _PlayMenuBuilder extends State<play_menu_widget> {
        * 更换当前进度条
        */
       setState(() {
+        currentPosition = onData.inSeconds;
         if (allDuration != 0) {
           position =
-              (onData.inSeconds.toDouble() / allDuration.toDouble() * 1000)
+              (onData.inSeconds.toDouble() / allDuration.toDouble() * 2000)
                   .toInt();
-//        position = onData.inSeconds;
         }
       });
       print('${onData.inSeconds}  ');

@@ -27,24 +27,40 @@ class _SubjectDetailsBuilder extends State<SubjectDetailsPage> {
   Widget build(BuildContext context) {
     return new Scaffold(
       body: body != null
-          ? new Column(
-              children: <Widget>[
-                Container(
-                  width: double.infinity,
-                  height: 214,
-                  child: Image(
-                    image: NetworkImage(body['bigimageUrl']),
-                    fit: BoxFit.fitWidth,
+          ? NestedScrollView(
+              body: new Column(
+                children: <Widget>[
+                  Flexible(
+                    flex: 1,
+                    fit: FlexFit.tight,
+                    child: ListView(
+                      children: _getItem(),
+                    ),
+                  )
+                ],
+              ),
+              headerSliverBuilder:
+                  (BuildContext context, bool innerBoxIsScrolled) {
+                return <Widget>[
+                  /*SliverOverlapAbsorber( handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+          )*/
+                  SliverAppBar(
+                    expandedHeight: 214,
+                    flexibleSpace: FlexibleSpaceBar(
+                      background: Container(
+                        width: double.infinity,
+                        height: 214,
+                        child: Image(
+                          image: NetworkImage(body['bigimageUrl']),
+                          fit: BoxFit.fitWidth,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-                Flexible(
-                  flex: 1,
-                  fit: FlexFit.tight,
-                  child: ListView(
-                    children: _getItem(),
-                  ),
-                )
-              ],
+
+                ];
+              },
+              controller: ScrollController(),
             )
           : getView(),
     );
@@ -98,7 +114,10 @@ class _SubjectDetailsBuilder extends State<SubjectDetailsPage> {
       ),
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute<void>(builder: (context) {
-          return new play_menu_widget(imgUrl: f['imageUrl'],playUrl:f['auditionUrl'] ,);
+          return new play_menu_widget(
+            imgUrl: f['imageUrl'],
+            playUrl: f['auditionUrl'],
+          );
         }));
       },
     );
