@@ -32,105 +32,123 @@ class _PlayMenuBuilder extends State<play_menu_widget> {
   @override
   Widget build(BuildContext context) {
     player.play(playUrl);
-    return new Stack(
-      children: <Widget>[
-        Column(
-          children: <Widget>[
-            Stack(
-              children: <Widget>[
-                Container(
-                  child: Center(
-                    child: RotationTransition(
-                      child: ClipOval(
-                        child: Image(
-                          image: NetworkImage(imgUrl),
-                          fit: BoxFit.cover,
-                          width: 200,
-                          height: 200,
-                        ),
-                      ),
-                      turns: new Tween<double>(begin: 0.0, end: 1.0)
-                          .animate(_controller),
-                    ),
-                  ),
-                  margin: EdgeInsets.fromLTRB(0, 100, 0, 0),
+    return new Scaffold(
+      body: Stack(
+        children: <Widget>[
+          new Container(
+            decoration: new BoxDecoration(
+              image: new DecorationImage(
+                image: new NetworkImage(imgUrl),
+                fit: BoxFit.cover,
+                colorFilter: new ColorFilter.mode(
+                  Colors.black54,
+                  BlendMode.overlay,
                 ),
-                Container(
-                  child: Image(
-                    image: AssetImage('icon/play_needle.png'),
-                    width: 92,
-                    height: 138,
-                  ),
-                  margin: EdgeInsets.fromLTRB(46, 0, 0, 0),
-                  alignment: Alignment.center,
-                )
-              ],
+              ),
             ),
-            Row(
-              children: <Widget>[
-                GestureDetector(
-                  child: Icon(
-                    Icons.pause,
-                  ),
-                  onTap: () {
-                    if (player.state == AudioPlayerState.PLAYING) {
-                      //正在播放
-                      player.pause();
-                    } else {
-                      if (player.state == AudioPlayerState.PAUSED) {
-                        player.resume();
-                      } else if (player.state == AudioPlayerState.COMPLETED) {
-                        player.play(playUrl);
-                      } else {}
-                    }
-                  },
+          ),
+          BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+            child: Opacity(
+              child: new Container(
+                decoration: new BoxDecoration(
+                  color: Color(0x4a999999),
                 ),
-                Icon(Icons.play_arrow),
-              ],
+              ),
+              opacity: 1.0,
             ),
-            Container(
-              child: Row(
+          ),
+          Column(
+            children: <Widget>[
+              Stack(
                 children: <Widget>[
-                  Text(
-                    TimeParse.parse(currentPosition),
-                    style: TextStyle(
-                      color: Color(0xff999999),
-                      fontSize: 15,
+                  Container(
+                    child: Center(
+                      child: RotationTransition(
+                        child: ClipOval(
+                          child: Image(
+                            image: NetworkImage(imgUrl),
+                            fit: BoxFit.cover,
+                            width: 200,
+                            height: 200,
+                          ),
+                        ),
+                        turns: new Tween<double>(begin: 0.0, end: 1.0)
+                            .animate(_controller),
+                      ),
                     ),
+                    margin: EdgeInsets.fromLTRB(0, 100, 0, 0),
                   ),
-                  Flexible(
-                    child: Container(
-                      child: Slider(
-                          min: 0,
-                          max: 2000,
-                          value: position.toDouble(),
-                          onChanged: (value) {
-                            print('change value $value');
-                          }),
-                      margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                  Container(
+                    child: Image(
+                      image: AssetImage('icon/play_needle.png'),
+                      width: 92,
+                      height: 138,
                     ),
-                    flex: 1,
-                    fit: FlexFit.tight,
-                  ),
-                  Text(
-                    TimeParse.parse(allDuration),
-                    style: TextStyle(color: Color(0xff999999), fontSize: 15),
-                  ),
+                    margin: EdgeInsets.fromLTRB(46, 0, 0, 0),
+                    alignment: Alignment.center,
+                  )
                 ],
               ),
-              margin: EdgeInsets.fromLTRB(15, 100, 15, 0),
-              alignment: Alignment.bottomCenter,
-            ),
-          ],
-        ),
-        BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Opacity(
-            child: Image(image: NetworkImage(imgUrl)),
-            opacity: 0.6,
+              Row(
+                children: <Widget>[
+                  GestureDetector(
+                    child: Icon(
+                      Icons.pause,
+                    ),
+                    onTap: () {
+                      if (player.state == AudioPlayerState.PLAYING) {
+                        //正在播放
+                        player.pause();
+                      } else {
+                        if (player.state == AudioPlayerState.PAUSED) {
+                          player.resume();
+                        } else if (player.state == AudioPlayerState.COMPLETED) {
+                          player.play(playUrl);
+                        } else {}
+                      }
+                    },
+                  ),
+                  Icon(Icons.play_arrow),
+                ],
+              ),
+              Container(
+                child: Row(
+                  children: <Widget>[
+                    Text(
+                      TimeParse.parse(currentPosition),
+                      style: TextStyle(
+                        color: Color(0xff999999),
+                        fontSize: 15,
+                      ),
+                    ),
+                    Flexible(
+                      child: Container(
+                        child: Slider(
+                            min: 0,
+                            max: 2000,
+                            value: position.toDouble(),
+                            onChanged: (value) {
+                              print('change value $value');
+                            }),
+                        margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                      ),
+                      flex: 1,
+                      fit: FlexFit.tight,
+                    ),
+                    Text(
+                      TimeParse.parse(allDuration),
+                      style: TextStyle(color: Color(0xff999999), fontSize: 15),
+                    ),
+                  ],
+                ),
+                margin: EdgeInsets.fromLTRB(15, 100, 15, 0),
+                alignment: Alignment.bottomCenter,
+              ),
+            ],
           ),
-        )
-      ],
+        ],
+      ),
     );
   }
 
