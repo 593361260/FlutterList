@@ -48,11 +48,11 @@ class _PlayMenuBuilder extends State<play_menu_widget> {
             ),
           ),
           BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+            filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
             child: Opacity(
               child: new Container(
                 decoration: new BoxDecoration(
-                  color: Color(0x4a999999),
+                  color: Color(0x11ffffff),
                 ),
               ),
               opacity: 1.0,
